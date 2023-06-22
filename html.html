@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Zoo Animals</title>
+  <script src="https://unpkg.com/react/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/babel-standalone/babel.min.js"></script>
+  <style>
+    /* Styles here */
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+
+  <script type="text/babel">
+    // ZooAnimals component
+    class ZooAnimals extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = {
+          animals: [],
+          initialCount: '',
+          years: '',
+          aliveCount: 0,
+          editIndex: null
+        };
+      }
+
+      handleInputChange = (event) => {
+        this.setState({ [event.target.name]: event.target.value });
+      }
+
+      handleAddAnimal = () => {
+        const { animals, initialCount, years } = this.state;
+        const animal = {
+          initialCount: parseInt(initialCount),
+          years: parseInt(years),
+          aliveCount: this.calculateAliveCount(initialCount, years)
+        };
+
+        this.setState(prevState => ({
+          animals: [...prevState.animals, animal],
+          initialCount: '',
+          years: '',
+          aliveCount: 0
+        }));
+      }
+
+      handleEditAnimal = (index) => {
+        const { animals } = this.state;
+        const animal = animals[index];
+
+        this.setState({
+          initialCount: animal.initialCount.toString(),
+          years: animal.years.toString(),
+          aliveCount: animal.aliveCount,
+          editIndex: index
+        });
+      }
+
+      handleUpdateAnimal = () => {
+        const { animals, initialCount, years, editIndex } = this.state;
+        const updatedAnimal = {
+          initialCount: parseInt(initialCount),
+          years: parseInt(years),
+          aliveCount: this.calculateAliveCount(initialCount, years)
+        };
+
+        const updatedAnimals = [...animals];
+        updatedAnimals[editIndex] = updatedAnimal;
+
+        this.setState({
+          animals: updatedAnimals,
+          initialCount: '',
+          years: '',
+          aliveCount: 0,
+          editIndex: null
+        });
+      }
+
+      handleDeleteAnimal = (index) => {
+        const { animals } = this.state;
+        const updatedAnimals = animals.filter((_, i) => i !== index);
+
+        this.setState({ animals: updatedAnimals });
+      }
+
+      calculateAliveCount = (initialCount, years) => {
+        let aliveCount = initialCount;
+
+        for (let i = 0; i < years; i++) {
+          aliveCount *= 2;
+        }
+
+        return aliveCount;
+      }
+
+      render() {
+        const { animals, initialCount, years, aliveCount, editIndex } = this.state;
+
+        return (
+          <div className="container">
+            <h1>Zoo Animals</h1>
+            <div>
+              <label>Initial Count:</label>
+              <input type="number" name="initialCount" value={initialCount} onChange={this.handleInputChange} placeholder="Enter initial count" />
+            </div>
+            <div>
+              <label>Years:</label>
+              <input type="number" name="years" value={years} onChange={this.handleInputChange} placeholder="Enter number of years" />
+            </div>
+            <div>
+              {editIndex !== null ? (
+                <button onClick={this.handleUpdateAnimal}>Update Animal</button>
+              ) : (
+                <button onClick={this.handleAddAnimal}>Add Animal</button>
+              )}
+            </div>
+            <ul>
+              {animals.map((animal, index) => (
+                <li key={index}>
+                  <div>
+                    <strong>Initial Count: {animal.initialCount}</strong>
+                  </div>
+                  <div>
+                    <strong>Years: {animal.years}</strong>
+                  </div>
+                  <div>
+                    <strong>Number of Animals Alive: {animal.aliveCount}</strong>
+                  </div>
+                  <div>
+                    <button onClick={() => this.handleEditAnimal(index)}>Edit</button>
+                    <button onClick={() => this.handleDeleteAnimal(index)}>Delete</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
+    }
+
+    // Render the ZooAnimals component
+    ReactDOM.render(<ZooAnimals />, document.getElementById('app'));
+  </script>
+</body>
+
+</html>
